@@ -237,12 +237,12 @@ Players.PlayerAdded:Connect(function(newPlayer)
 end)
 
 -- ==========================================
--- INTERFACE
+-- INTERFACE (REDUZIDA EM 30%)
 -- ==========================================
 local parentTarget = pcall(function() return CoreGui end) and CoreGui or LocalPlayer:WaitForChild("PlayerGui")
 
 local ScreenGui = Create("ScreenGui", parentTarget, { Name = "SomAll_UI_Optimized", ResetOnSpawn = false })
-local OpenToggleButton = Create("ImageButton", ScreenGui, { Name = "OpenToggleButton", Size = UDim2.new(0, 55, 0, 55), Position = UDim2.new(0.15, 0, 0.15, 0), BackgroundTransparency = 1, Image = "rbxassetid://97841083200822" })
+local OpenToggleButton = Create("ImageButton", ScreenGui, { Name = "OpenToggleButton", Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(0.15, 0, 0.15, 0), BackgroundTransparency = 1, Image = "rbxassetid://97841083200822" })
 
 -- Sistema de Arrasto
 local function SetupDrag(guiObj)
@@ -265,29 +265,31 @@ local function SetupDrag(guiObj)
 end
 SetupDrag(OpenToggleButton)
 
--- Janela Principal
-local MainFrame = Create("Frame", ScreenGui, { Name = "MainFrame", Size = UDim2.new(0, 260, 0, 260), Position = UDim2.new(0.5, -130, 0.5, -130), BackgroundColor3 = Color3.fromRGB(10, 10, 10), BorderSizePixel = 0 }, nil, { Color = Color3.fromRGB(255, 255, 255), Thickness = 4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border })
+-- Janela Principal (260 → 182 = -30%)
+local MainFrame = Create("Frame", ScreenGui, { Name = "MainFrame", Size = UDim2.new(0, 182, 0, 182), Position = UDim2.new(0.5, -91, 0.5, -91), BackgroundColor3 = Color3.fromRGB(10, 10, 10), BorderSizePixel = 0 }, nil, { Color = Color3.fromRGB(255, 255, 255), Thickness = 3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border })
 SetupDrag(MainFrame)
 
 OpenToggleButton.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
 
--- Elementos Visuais
-Create("ImageLabel", MainFrame, { Name = "MaskBackground", Size = UDim2.new(0, 160, 0, 160), Position = UDim2.new(0.5, -80, 0.5, -80), BackgroundTransparency = 1, Image = "rbxassetid://129840270385512" })
+-- Elementos Visuais (160 → 112 = -30%)
+Create("ImageLabel", MainFrame, { Name = "MaskBackground", Size = UDim2.new(0, 112, 0, 112), Position = UDim2.new(0.5, -56, 0.5, -56), BackgroundTransparency = 1, Image = "rbxassetid://129840270385512" })
 
-Create("TextLabel", MainFrame, { Name = "TitleLabel", Size = UDim2.new(0, 150, 0, 35), Position = UDim2.new(0, 12, 0, 8), BackgroundTransparency = 1, Text = "Som ALL V1", Font = FONTE_PROJETO, TextSize = 22, TextColor3 = Color3.fromRGB(255, 255, 255), TextXAlignment = Enum.TextXAlignment.Left }, nil, nil, { Color = Color3.fromRGB(0, 0, 0), Thickness = 2 })
+-- Título (150 → 105 = -30%, 22 → 15 = -30%, 35 → 25 = -30%)
+Create("TextLabel", MainFrame, { Name = "TitleLabel", Size = UDim2.new(0, 105, 0, 25), Position = UDim2.new(0, 8, 0, 6), BackgroundTransparency = 1, Text = "Som ALL V1", Font = FONTE_PROJETO, TextSize = 15, TextColor3 = Color3.fromRGB(255, 255, 255), TextXAlignment = Enum.TextXAlignment.Left }, nil, nil, { Color = Color3.fromRGB(0, 0, 0), Thickness = 2 })
 
-local DestroyButton = Create("ImageButton", MainFrame, { Name = "DestroyButton", Size = UDim2.new(0, 32, 0, 32), Position = UDim2.new(1, -40, 0, 8), BackgroundTransparency = 1, Image = "rbxassetid://98235327129327" })
+-- Botão X (32 → 22 = -30%, posição ajustada)
+local DestroyButton = Create("ImageButton", MainFrame, { Name = "DestroyButton", Size = UDim2.new(0, 22, 0, 22), Position = UDim2.new(1, -28, 0, 6), BackgroundTransparency = 1, Image = "rbxassetid://98235327129327" })
 DestroyButton.MouseButton1Click:Connect(function() 
     pararLoop()
     ScreenGui:Destroy() 
 end)
 
--- Botões
-local borderStyle = { Color = Color3.fromRGB(255, 255, 255), Thickness = 1.5, Transparency = 0.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }
-local textBlackStroke = { Color = Color3.fromRGB(0, 0, 0), Thickness = 2 }
+-- Estilos
+local borderStyle = { Color = Color3.fromRGB(255, 255, 255), Thickness = 1, Transparency = 0.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }
+local textBlackStroke = { Color = Color3.fromRGB(0, 0, 0), Thickness = 1.5 }
 
--- Botão Central (Ativar/Desativar)
-local ActionToggleButton = Create("TextButton", MainFrame, { Name = "ActionToggleButton", Size = UDim2.new(0, 220, 0, 36), Position = UDim2.new(0.5, -110, 0.5, -18), BackgroundColor3 = Color3.fromRGB(35, 35, 35), BackgroundTransparency = 0.25, Text = "Sound ALL disabled", Font = FONTE_PROJETO, TextSize = 17, TextColor3 = Color3.fromRGB(255, 255, 255) }, nil, borderStyle, textBlackStroke)
+-- Botão Central (220 → 154 = -30%, 36 → 25 = -30%, 17 → 12 = -30%)
+local ActionToggleButton = Create("TextButton", MainFrame, { Name = "ActionToggleButton", Size = UDim2.new(0, 154, 0, 25), Position = UDim2.new(0.5, -77, 0.5, -12), BackgroundColor3 = Color3.fromRGB(35, 35, 35), BackgroundTransparency = 0.25, Text = "Sound ALL disabled", Font = FONTE_PROJETO, TextSize = 12, TextColor3 = Color3.fromRGB(255, 255, 255) }, nil, borderStyle, textBlackStroke)
 
 ActionToggleButton.MouseButton1Click:Connect(function()
     isActivated = not isActivated
@@ -303,6 +305,6 @@ ActionToggleButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Botão Fechar UI
-local HideUIButton = Create("TextButton", MainFrame, { Name = "HideUIButton", Size = UDim2.new(0, 190, 0, 34), Position = UDim2.new(0.5, -95, 1, -45), BackgroundColor3 = Color3.fromRGB(50, 50, 50), BackgroundTransparency = 0.2, Text = "Fechar UI", Font = FONTE_PROJETO, TextSize = 18, TextColor3 = Color3.fromRGB(255, 255, 255) }, nil, nil, textBlackStroke)
+-- Botão Fechar UI (190 → 133 = -30%, 34 → 24 = -30%, 18 → 13 = -30%, -45 → -32 = -30%)
+local HideUIButton = Create("TextButton", MainFrame, { Name = "HideUIButton", Size = UDim2.new(0, 133, 0, 24), Position = UDim2.new(0.5, -66, 1, -32), BackgroundColor3 = Color3.fromRGB(50, 50, 50), BackgroundTransparency = 0.2, Text = "Fechar UI", Font = FONTE_PROJETO, TextSize = 13, TextColor3 = Color3.fromRGB(255, 255, 255) }, nil, nil, textBlackStroke)
 HideUIButton.MouseButton1Click:Connect(function() MainFrame.Visible = false end)
