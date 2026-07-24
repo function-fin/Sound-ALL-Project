@@ -219,7 +219,7 @@ local function pararLoop()
 end
 
 -- ==========================================
--- NOVO JOGADOR
+-- SHHHHH. . . . .
 -- ==========================================
 Players.PlayerAdded:Connect(function(newPlayer)
     if newPlayer == LocalPlayer then return end
@@ -237,12 +237,12 @@ Players.PlayerAdded:Connect(function(newPlayer)
 end)
 
 -- ==========================================
--- INTERFACE (REDUZIDA EM 30%)
+-- o.o.o.o.o.o.o
 -- ==========================================
 local parentTarget = pcall(function() return CoreGui end) and CoreGui or LocalPlayer:WaitForChild("PlayerGui")
 
 local ScreenGui = Create("ScreenGui", parentTarget, { Name = "SomAll_UI_Optimized", ResetOnSpawn = false })
-local OpenToggleButton = Create("ImageButton", ScreenGui, { Name = "OpenToggleButton", Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(0.15, 0, 0.15, 0), BackgroundTransparency = 1, Image = "rbxassetid://97841083200822" })
+local OpenToggleButton = Create("ImageButton", ScreenGui, { Name = "OpenToggleButton", Size = UDim2.new(0, 70, 0, 70), Position = UDim2.new(0.15, 0, 0.15, 0), BackgroundTransparency = 1, Image = "rbxassetid://97841083200822" })
 
 -- Sistema de Arrasto
 local function SetupDrag(guiObj)
