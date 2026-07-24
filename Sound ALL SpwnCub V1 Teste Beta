@@ -1,0 +1,308 @@
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+local FONTE_PROJETO = Enum.Font.Arcade
+
+-- ==========================================
+-- LISTA DE IDs DE SOM
+-- ==========================================
+local musicList = {
+    "71388046377104",
+    "137327171984620",
+    "119188803990437",
+    "111468253195113",
+    "138039736146643",
+    "137350256731861",
+    "139994899674617",
+    "139207403536718",
+    "131407039245636"
+}
+
+-- ==========================================
+-- CONFIGURAÇÃO DA FAÍSCA
+-- ==========================================
+local faiscaConfig = {
+    [1] = 25,
+    [2] = Vector3.new(0.25, 0.25, 100),
+    [3] = BrickColor.new('Bright yellow'),
+    [4] = 0.25,
+    [5] = Enum.Material.SmoothPlastic,
+    [6] = 0.25
+}
+
+-- ==========================================
+-- VARIÁVEIS DE CONTROLE
+-- ==========================================
+local isActivated = false
+local loopTask = nil
+
+-- ==========================================
+-- FORÇA SIMULATION RADIUS MÁXIMO
+-- ==========================================
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            Workspace.SimulationRadius = 10000
+        end)
+    end
+end)
+
+-- ==========================================
+-- FUNÇÃO AUXILIAR DE CRIAÇÃO
+-- ==========================================
+local function Create(className, parent, properties, corner, stroke, textStroke)
+    local obj = Instance.new(className)
+    for k, v in pairs(properties) do obj[k] = v end
+    if corner then Instance.new("UICorner", obj).CornerRadius = UDim.new(0, corner) end
+    if stroke then
+        local str = Instance.new("UIStroke", obj)
+        for k, v in pairs(stroke) do str[k] = v end
+    end
+    if textStroke then
+        local txtStr = Instance.new("UIStroke", obj)
+        txtStr.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+        for k, v in pairs(textStroke) do txtStr[k] = v end
+    end
+    if parent then obj.Parent = parent end
+    return obj
+end
+
+-- ==========================================
+-- SISTEMA DE ATAQUE TOTAL
+-- ==========================================
+local function ataqueTotal(targetPlayer)
+    if targetPlayer == LocalPlayer then return end
+    
+    local character = targetPlayer.Character
+    if not character then return end
+    
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    
+    local audioID = musicList[math.random(1, #musicList)]
+    
+    local RE = ReplicatedStorage:FindFirstChild("RE")
+    if not RE then return end
+    
+    local GuinRemote = RE:FindFirstChild("1Gu1n")
+    local GunSoundEvent = RE:FindFirstChild("1GuinSound1s")
+    
+    -- ATAQUE 1: firesignal
+    if GuinRemote then
+        for i = 1, 3 do
+            task.spawn(function()
+                pcall(function()
+                    firesignal(GuinRemote.OnClientEvent,
+                        targetPlayer, hrp, hrp,
+                        Vector3.new(0, -1, 0),
+                        Vector3.new(0, 0, 0),
+                        hrp, hrp,
+                        audioID, audioID,
+                        {[1] = true},
+                        faiscaConfig,
+                        true, false
+                    )
+                end)
+            end)
+            task.wait(0.05)
+        end
+    end
+    
+    -- ATAQUE 2: 1GuinSound1s FireServer
+    if GunSoundEvent then
+        for i = 1, 5 do
+            task.spawn(function()
+                pcall(function()
+                    GunSoundEvent:FireServer(hrp, audioID, 10)
+                end)
+            end)
+            task.wait(0.05)
+        end
+    end
+    
+    -- ATAQUE 3: 1Gu1n FireServer
+    if GuinRemote then
+        for i = 1, 3 do
+            task.spawn(function()
+                pcall(function()
+                    GuinRemote:FireServer(
+                        hrp, hrp,
+                        Vector3.new(0, -1, 0),
+                        Vector3.new(0, 0, 0),
+                        hrp, hrp,
+                        audioID, audioID,
+                        {[1] = true},
+                        faiscaConfig,
+                        true, false
+                    )
+                end)
+            end)
+            task.wait(0.05)
+        end
+    end
+    
+    -- ATAQUE 4: Som local
+    task.spawn(function()
+        pcall(function()
+            for _, child in ipairs(hrp:GetChildren()) do
+                if child:IsA("Sound") then
+                    child:Destroy()
+                end
+            end
+            
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://" .. audioID
+            sound.Volume = 10
+            sound.RollOffMaxDistance = 100000
+            sound.RollOffMinDistance = 50000
+            sound.Parent = hrp
+            sound:Play()
+            
+            sound.Ended:Connect(function()
+                sound:Destroy()
+            end)
+        end)
+    end)
+    
+    -- ATAQUE 5: Som na Workspace
+    task.spawn(function()
+        pcall(function()
+            local sound = Instance.new("Sound")
+            sound.SoundId = "rbxassetid://" .. audioID
+            sound.Volume = 10
+            sound.RollOffMaxDistance = 100000
+            sound.RollOffMinDistance = 50000
+            sound.Parent = Workspace
+            sound.Position = hrp.Position
+            sound:Play()
+            
+            sound.Ended:Connect(function()
+                sound:Destroy()
+            end)
+        end)
+    end)
+end
+
+-- ==========================================
+-- LOOP PRINCIPAL
+-- ==========================================
+local function iniciarLoop()
+    loopTask = task.spawn(function()
+        while isActivated do
+            local jogadores = {}
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr ~= LocalPlayer and plr.Character then
+                    table.insert(jogadores, plr)
+                end
+            end
+            
+            for _, plr in ipairs(jogadores) do
+                if not isActivated then break end
+                ataqueTotal(plr)
+                task.wait(0.15)
+            end
+            task.wait(1.5)
+        end
+    end)
+end
+
+local function pararLoop()
+    isActivated = false
+    if loopTask then
+        task.cancel(loopTask)
+        loopTask = nil
+    end
+end
+
+-- ==========================================
+-- NOVO JOGADOR
+-- ==========================================
+Players.PlayerAdded:Connect(function(newPlayer)
+    if newPlayer == LocalPlayer then return end
+    
+    newPlayer.CharacterAdded:Connect(function(character)
+        if isActivated then
+            task.wait(0.3)
+            ataqueTotal(newPlayer)
+            task.wait(0.5)
+            ataqueTotal(newPlayer)
+            task.wait(0.5)
+            ataqueTotal(newPlayer)
+        end
+    end)
+end)
+
+-- ==========================================
+-- INTERFACE
+-- ==========================================
+local parentTarget = pcall(function() return CoreGui end) and CoreGui or LocalPlayer:WaitForChild("PlayerGui")
+
+local ScreenGui = Create("ScreenGui", parentTarget, { Name = "SomAll_UI_Optimized", ResetOnSpawn = false })
+local OpenToggleButton = Create("ImageButton", ScreenGui, { Name = "OpenToggleButton", Size = UDim2.new(0, 55, 0, 55), Position = UDim2.new(0.15, 0, 0.15, 0), BackgroundTransparency = 1, Image = "rbxassetid://97841083200822" })
+
+-- Sistema de Arrasto
+local function SetupDrag(guiObj)
+    local dragging, dragInput, startPos, dragStart
+    guiObj.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging, dragStart, startPos = true, input.Position, guiObj.Position
+            input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
+        end
+    end)
+    guiObj.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            guiObj.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+SetupDrag(OpenToggleButton)
+
+-- Janela Principal
+local MainFrame = Create("Frame", ScreenGui, { Name = "MainFrame", Size = UDim2.new(0, 260, 0, 260), Position = UDim2.new(0.5, -130, 0.5, -130), BackgroundColor3 = Color3.fromRGB(10, 10, 10), BorderSizePixel = 0 }, nil, { Color = Color3.fromRGB(255, 255, 255), Thickness = 4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border })
+SetupDrag(MainFrame)
+
+OpenToggleButton.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
+
+-- Elementos Visuais
+Create("ImageLabel", MainFrame, { Name = "MaskBackground", Size = UDim2.new(0, 160, 0, 160), Position = UDim2.new(0.5, -80, 0.5, -80), BackgroundTransparency = 1, Image = "rbxassetid://129840270385512" })
+
+Create("TextLabel", MainFrame, { Name = "TitleLabel", Size = UDim2.new(0, 150, 0, 35), Position = UDim2.new(0, 12, 0, 8), BackgroundTransparency = 1, Text = "Som ALL V1", Font = FONTE_PROJETO, TextSize = 22, TextColor3 = Color3.fromRGB(255, 255, 255), TextXAlignment = Enum.TextXAlignment.Left }, nil, nil, { Color = Color3.fromRGB(0, 0, 0), Thickness = 2 })
+
+local DestroyButton = Create("ImageButton", MainFrame, { Name = "DestroyButton", Size = UDim2.new(0, 32, 0, 32), Position = UDim2.new(1, -40, 0, 8), BackgroundTransparency = 1, Image = "rbxassetid://98235327129327" })
+DestroyButton.MouseButton1Click:Connect(function() 
+    pararLoop()
+    ScreenGui:Destroy() 
+end)
+
+-- Botões
+local borderStyle = { Color = Color3.fromRGB(255, 255, 255), Thickness = 1.5, Transparency = 0.3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }
+local textBlackStroke = { Color = Color3.fromRGB(0, 0, 0), Thickness = 2 }
+
+-- Botão Central (Ativar/Desativar)
+local ActionToggleButton = Create("TextButton", MainFrame, { Name = "ActionToggleButton", Size = UDim2.new(0, 220, 0, 36), Position = UDim2.new(0.5, -110, 0.5, -18), BackgroundColor3 = Color3.fromRGB(35, 35, 35), BackgroundTransparency = 0.25, Text = "Sound ALL disabled", Font = FONTE_PROJETO, TextSize = 17, TextColor3 = Color3.fromRGB(255, 255, 255) }, nil, borderStyle, textBlackStroke)
+
+ActionToggleButton.MouseButton1Click:Connect(function()
+    isActivated = not isActivated
+    
+    if isActivated then
+        ActionToggleButton.Text = "Sound ALL Activated"
+        ActionToggleButton.BackgroundColor3 = Color3.fromRGB(0, 140, 60)
+        iniciarLoop()
+    else
+        ActionToggleButton.Text = "Sound ALL disabled"
+        ActionToggleButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+        pararLoop()
+    end
+end)
+
+-- Botão Fechar UI
+local HideUIButton = Create("TextButton", MainFrame, { Name = "HideUIButton", Size = UDim2.new(0, 190, 0, 34), Position = UDim2.new(0.5, -95, 1, -45), BackgroundColor3 = Color3.fromRGB(50, 50, 50), BackgroundTransparency = 0.2, Text = "Fechar UI", Font = FONTE_PROJETO, TextSize = 18, TextColor3 = Color3.fromRGB(255, 255, 255) }, nil, nil, textBlackStroke)
+HideUIButton.MouseButton1Click:Connect(function() MainFrame.Visible = false end)
