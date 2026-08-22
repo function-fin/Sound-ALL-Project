@@ -1,13 +1,15 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
-
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 
 local LocalPlayer = Players.LocalPlayer
 local FONTE_PROJETO = Enum.Font.Arcade
 
+-- ==========================================
+-- LISTA DE IDs DE SOM
+-- ==========================================
 local musicList = {
     "71388046377104",
     "137327171984620",
@@ -20,6 +22,9 @@ local musicList = {
     "131407039245636"
 }
 
+-- ==========================================
+-- CONFIGURAÇÃO DA FAÍSCA
+-- ==========================================
 local faiscaConfig = {
     [1] = 25,
     [2] = Vector3.new(0.25, 0.25, 100),
@@ -29,9 +34,15 @@ local faiscaConfig = {
     [6] = 0.25
 }
 
+-- ==========================================
+-- VARIÁVEIS DE CONTROLE
+-- ==========================================
 local isActivated = false
 local loopTask = nil
 
+-- ==========================================
+-- FORÇA SIMULATION RADIUS MÁXIMO
+-- ==========================================
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
@@ -40,6 +51,9 @@ task.spawn(function()
     end
 end)
 
+-- ==========================================
+-- FUNÇÃO AUXILIAR DE CRIAÇÃO
+-- ==========================================
 local function Create(className, parent, properties, corner, stroke, textStroke)
     local obj = Instance.new(className)
     for k, v in pairs(properties) do obj[k] = v end
@@ -57,6 +71,9 @@ local function Create(className, parent, properties, corner, stroke, textStroke)
     return obj
 end
 
+-- ==========================================
+-- SISTEMA DE ATAQUE TOTAL
+-- ==========================================
 local function ataqueTotal(targetPlayer)
     if targetPlayer == LocalPlayer then return end
     
@@ -170,6 +187,9 @@ local function ataqueTotal(targetPlayer)
     end)
 end
 
+-- ==========================================
+-- LOOP PRINCIPAL
+-- ==========================================
 local function iniciarLoop()
     loopTask = task.spawn(function()
         while isActivated do
@@ -198,6 +218,9 @@ local function pararLoop()
     end
 end
 
+-- ==========================================
+-- NOVO JOGADOR
+-- ==========================================
 Players.PlayerAdded:Connect(function(newPlayer)
     if newPlayer == LocalPlayer then return end
     
@@ -213,10 +236,13 @@ Players.PlayerAdded:Connect(function(newPlayer)
     end)
 end)
 
+-- ==========================================
+-- INTERFACE (REDUZIDA EM 30%)
+-- ==========================================
 local parentTarget = pcall(function() return CoreGui end) and CoreGui or LocalPlayer:WaitForChild("PlayerGui")
 
 local ScreenGui = Create("ScreenGui", parentTarget, { Name = "SomAll_UI_Optimized", ResetOnSpawn = false })
-local OpenToggleButton = Create("ImageButton", ScreenGui, { Name = "OpenToggleButton", Size = UDim2.new(0, 70, 0, 70), Position = UDim2.new(0.15, 0, 0.15, 0), BackgroundTransparency = 1, Image = "rbxassetid://97841083200822" })
+local OpenToggleButton = Create("ImageButton", ScreenGui, { Name = "OpenToggleButton", Size = UDim2.new(0, 38, 0, 38), Position = UDim2.new(0.15, 0, 0.15, 0), BackgroundTransparency = 1, Image = "rbxassetid://97841083200822" })
 
 -- Sistema de Arrasto
 local function SetupDrag(guiObj)
