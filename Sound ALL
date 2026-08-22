@@ -4,6 +4,7 @@ local Workspace = game:GetService("Workspace")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 
+
 local LocalPlayer = Players.LocalPlayer
 local FONTE_PROJETO = Enum.Font.Arcade
 
