@@ -290,31 +290,47 @@ local HideUIButton = Create("TextButton", MainFrame, { Name = "HideUIButton", Si
 HideUIButton.MouseButton1Click:Connect(function() MainFrame.Visible = false end)
 
 --------------------------------------------------
--- NOVO ADAPTADOR INTELIGENTE (Com Fila Global)
+-- ADAPTADOR PERSISTENTE DEFINITIVO (SPWN)
 --------------------------------------------------
 task.spawn(function()
-    local scriptData = {
-        id = "SoundAllScript",
-        config = {
-            Name = "Sound ALL Beta",
-            Category = "Sound ALL Beta",
-            GuiObject = ScreenGui,
-            OnDestroy = function()
-                pararLoop()
-            end
-        }
+    local scriptId = "SoundAllScript"
+    local scriptConfig = {
+        Name = "Sound ALL Beta",
+        Category = "Sound ALL Beta",
+        GuiObject = ScreenGui,
+        OnDestroy = function()
+            pararLoop()
+        end
     }
 
-    if _G.ScriptManager then
-        _G.ScriptManager.RegisterScript(scriptData.id, scriptData.config)
-    else
-        _G.ScriptManagerQueue = _G.ScriptManagerQueue or {}
-        local exists = false
-        for _, item in ipairs(_G.ScriptManagerQueue) do
-            if item.id == scriptData.id then exists = true break end
+    -- Garante que o banco e a fila global existam e nunca se percam ao reexecutar
+    _G.RegisteredScriptDatabase = _G.RegisteredScriptDatabase or {}
+    _G.ScriptManagerQueue = _G.ScriptManagerQueue or {}
+
+    -- Atualiza ou insere na base de dados persistente imediatamente
+    _G.RegisteredScriptDatabase[scriptId] = {
+        Name = scriptConfig.Name,
+        Category = scriptConfig.Category,
+        GuiObject = scriptConfig.GuiObject,
+        IsVisible = true,
+        OnDestroy = scriptConfig.OnDestroy
+    }
+
+    -- Adiciona na fila para o Gerenciador capturar caso já esteja aberto ou abra depois
+    local exists = false
+    for _, item in ipairs(_G.ScriptManagerQueue) do
+        if item.id == scriptId then 
+            exists = true 
+            item.config = scriptConfig -- Atualiza a referência da nova GUI
+            break 
         end
-        if not exists then
-            table.insert(_G.ScriptManagerQueue, scriptData)
-        end
+    end
+    if not exists then
+        table.insert(_G.ScriptManagerQueue, {id = scriptId, config = scriptConfig})
+    end
+
+    -- Se o Gerenciador já estiver aberto na tela, força a atualização imediata da lista dele
+    if _G.ScriptManager and type(_G.ScriptManager.RegisterScript) == "function" then
+        _G.ScriptManager.RegisterScript(scriptId, scriptConfig)
     end
 end)
