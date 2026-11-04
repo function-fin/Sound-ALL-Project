@@ -211,7 +211,7 @@ Players.PlayerAdded:Connect(function(newPlayer)
     end)
 end)
 
--- Identificação segura do local da UI
+-- Identificação segura do local da UI (gethui -> CoreGui -> PlayerGui)
 local parentTarget = (typeof(gethui) == "function" and gethui()) 
     or (pcall(function() return CoreGui.Name end) and CoreGui) 
     or LocalPlayer:WaitForChild("PlayerGui")
@@ -221,6 +221,12 @@ if parentTarget:FindFirstChild("SomAll_UI_Optimized") then
 end
 
 local ScreenGui = Create("ScreenGui", parentTarget, { Name = "SomAll_UI_Optimized", ResetOnSpawn = false })
+
+-- Atributos de Identificação Persistente na Memória para o Gerenciador (Garante re-registro perfeito ao reexecutar)
+ScreenGui:SetAttribute("SPWN_ManagedScriptID", "SoundAllScript")
+ScreenGui:SetAttribute("SPWN_ManagedScriptName", "Sound ALL Beta")
+ScreenGui:SetAttribute("SPWN_ManagedScriptCategory", "Sound ALL Beta")
+
 local OpenToggleButton = Create("ImageButton", ScreenGui, { Name = "OpenToggleButton", Size = UDim2.new(0, 70, 0, 70), Position = UDim2.new(0.15, 0, 0.15, 0), BackgroundTransparency = 1, Image = "rbxassetid://97841083200822" })
 
 -- Sistema de Arrasto
@@ -258,8 +264,8 @@ Create("TextLabel", MainFrame, { Name = "TitleLabel", Size = UDim2.new(0, 105, 0
 local DestroyButton = Create("ImageButton", MainFrame, { Name = "DestroyButton", Size = UDim2.new(0, 22, 0, 22), Position = UDim2.new(1, -28, 0, 6), BackgroundTransparency = 1, Image = "rbxassetid://98235327129327" })
 DestroyButton.MouseButton1Click:Connect(function() 
     pararLoop()
-    if _G.ScriptManager then
-        _G.ScriptManager.UnregisterScript("SoundAllScript")
+    if _G.RegisteredScriptDatabase then
+        _G.RegisteredScriptDatabase["SoundAllScript"] = nil
     end
     ScreenGui:Destroy() 
 end)
@@ -290,7 +296,7 @@ local HideUIButton = Create("TextButton", MainFrame, { Name = "HideUIButton", Si
 HideUIButton.MouseButton1Click:Connect(function() MainFrame.Visible = false end)
 
 --------------------------------------------------
--- ADAPTADOR PERSISTENTE DEFINITIVO (SPWN)
+-- ADAPTADOR PERSISTENTE INTELIGENTE (SPWN)
 --------------------------------------------------
 task.spawn(function()
     local scriptId = "SoundAllScript"
@@ -303,11 +309,10 @@ task.spawn(function()
         end
     }
 
-    -- Garante que o banco e a fila global existam e nunca se percam ao reexecutar
-    _G.RegisteredScriptDatabase = _G.RegisteredScriptDatabase or {}
+    -- Garante a persistência global na memória
     _G.ScriptManagerQueue = _G.ScriptManagerQueue or {}
+    _G.RegisteredScriptDatabase = _G.RegisteredScriptDatabase or {}
 
-    -- Atualiza ou insere na base de dados persistente imediatamente
     _G.RegisteredScriptDatabase[scriptId] = {
         Name = scriptConfig.Name,
         Category = scriptConfig.Category,
@@ -316,20 +321,18 @@ task.spawn(function()
         OnDestroy = scriptConfig.OnDestroy
     }
 
-    -- Adiciona na fila para o Gerenciador capturar caso já esteja aberto ou abra depois
     local exists = false
     for _, item in ipairs(_G.ScriptManagerQueue) do
-        if item.id == scriptId then 
-            exists = true 
-            item.config = scriptConfig -- Atualiza a referência da nova GUI
-            break 
+        if item.id == scriptId then
+            exists = true
+            item.config = scriptConfig
+            break
         end
     end
     if not exists then
         table.insert(_G.ScriptManagerQueue, {id = scriptId, config = scriptConfig})
     end
 
-    -- Se o Gerenciador já estiver aberto na tela, força a atualização imediata da lista dele
     if _G.ScriptManager and type(_G.ScriptManager.RegisterScript) == "function" then
         _G.ScriptManager.RegisterScript(scriptId, scriptConfig)
     end
