@@ -211,7 +211,7 @@ Players.PlayerAdded:Connect(function(newPlayer)
     end)
 end)
 
--- Identificação segura do local da UI (gethui -> CoreGui -> PlayerGui)
+-- Identificação segura do local da UI
 local parentTarget = (typeof(gethui) == "function" and gethui()) 
     or (pcall(function() return CoreGui.Name end) and CoreGui) 
     or LocalPlayer:WaitForChild("PlayerGui")
@@ -258,6 +258,9 @@ Create("TextLabel", MainFrame, { Name = "TitleLabel", Size = UDim2.new(0, 105, 0
 local DestroyButton = Create("ImageButton", MainFrame, { Name = "DestroyButton", Size = UDim2.new(0, 22, 0, 22), Position = UDim2.new(1, -28, 0, 6), BackgroundTransparency = 1, Image = "rbxassetid://98235327129327" })
 DestroyButton.MouseButton1Click:Connect(function() 
     pararLoop()
+    if _G.ScriptManager then
+        _G.ScriptManager.UnregisterScript("SoundAllScript")
+    end
     ScreenGui:Destroy() 
 end)
 
@@ -285,3 +288,17 @@ end)
 -- Botão Fechar UI
 local HideUIButton = Create("TextButton", MainFrame, { Name = "HideUIButton", Size = UDim2.new(0, 133, 0, 24), Position = UDim2.new(0.5, -66, 1, -32), BackgroundColor3 = Color3.fromRGB(50, 50, 50), BackgroundTransparency = 0.2, Text = "Fechar UI", Font = FONTE_PROJETO, TextSize = 13, TextColor3 = Color3.fromRGB(255, 255, 255) }, nil, nil, textBlackStroke)
 HideUIButton.MouseButton1Click:Connect(function() MainFrame.Visible = false end)
+
+--------------------------------------------------
+-- ADAPTADOR DO SCRIPT MANAGER (SPWN)
+--------------------------------------------------
+if _G.ScriptManager then
+    _G.ScriptManager.RegisterScript("SoundAllScript", {
+        Name = "Sound ALL Beta",
+        Category = "Sound ALL Beta",
+        GuiObject = ScreenGui, -- Controla a visibilidade e bloqueio de toque de toda a UI
+        OnDestroy = function()
+            pararLoop() -- Encerra o loop e threads ativas ao fechar pelo Gerenciador
+        end
+    })
+end
